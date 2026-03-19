@@ -1,20 +1,26 @@
 #!/bin/bash
-
+. "${HOME}/.cache/wal/colors.sh"
 ACCENT_COLOR="678544"
 BG_COLOR="222222"
 FG_COLOR="F8F8F8"
 
 # choose from list of available networks
+#NETWORK=$(nmcli -f "BARS,SSID" device wifi | 
+#	tail --lines +2 | 
+#	awk '!x[$2]++' | # remove duplicates
+#	wmenu -i -l 10 -c \
+#		-s "$FG_COLOR" \
+#		-S "$ACCENT_COLOR" \
+#		-n "$ACCENT_COLOR" \
+#		-N "$BG_COLOR" 
+#	) || exit 0
+
+# choose from list of available networks
 NETWORK=$(nmcli -f "BARS,SSID" device wifi | 
 	tail --lines +2 | 
 	awk '!x[$2]++' | # remove duplicates
-	wmenu -i -l 10 -c \
-		-s "$FG_COLOR" \
-		-S "$ACCENT_COLOR" \
-		-n "$ACCENT_COLOR" \
-		-N "$BG_COLOR" 
+	wmenu-colors -i -l 10 -c
 	) || exit 0
-
 NETWORK=$(echo -e "$NETWORK" | awk '{$1=""; print $0}')
 
 # remove leading and trailing spaces from network name
@@ -35,13 +41,15 @@ done <<< "$SAVED_NETWORKS"
 # connect to network
 if [[ "$PSWD" == "" || "$PSWD" == "--" ]];then
 	# prompt user for password
-	PSWD=$(echo "" | wmenu -c  -p "Password:" \
-			-S "$BG_COLOR" \
-			-n "$ACCENT_COLOR" \
-			-N "$BG_COLOR" \
-			-m "$FG_COLOR" \
-			-M "$ACCENT_COLOR"
-		) || exit 0
+	#PSWD=$(echo "" | wmenu -c  -p "Password:" \
+	#		-S "$BG_COLOR" \
+	#		-n "$ACCENT_COLOR" \
+	#		-N "$BG_COLOR" \
+	#		-m "$FG_COLOR" \
+	#		-M "$ACCENT_COLOR"
+	#	) || exit 0
+	# prompt user for password
+	PSWD=$(echo "" | wmenu-colors -c -p "Password:" -S "$color0") || exit 0
 	nmcli connection delete "$NETWORK" # delete connecition if no password is stored to avoid weird nmcli bug
 	nmcli device wifi connect "$NETWORK" password "$PSWD"
 else
